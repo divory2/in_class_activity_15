@@ -25,24 +25,37 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _loadQuestions() async {
     try {
-      final questions = await ApiService.fetchQuestions();
+      final questions = await ApiService.fetchQuestions(); //calling the fetchquestion method from api service class
       setState(() {
-        _questions = questions;
-        _loading = false;
+        _questions = questions; //setting questions list 
+        _loading = false; //bool for loading 
       });
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      
+          content: Text("Error has occured while loading questions"),
+         action:  SnackBarAction (
+            label: "ok",
+            onPressed: (){
+             Navigator.of(context).pop();
+
+          },)
+      )
+
+      );
       print(e);
       // Handle error appropriately
+
     }
   }
 
   void _submitAnswer(String selectedAnswer) {
     setState(() {
-      _answered = true;
-      _selectedAnswer = selectedAnswer;
-      final correctAnswer = _questions[_currentQuestionIndex].correctAnswer;
-      if (selectedAnswer == correctAnswer) {
-        _score++;
+      _answered = true;//bool for answered 
+      _selectedAnswer = selectedAnswer; //tracking the selected answer and storing into variable 
+      final correctAnswer = _questions[_currentQuestionIndex].correctAnswer; //getting the correct answer from question object
+      if (selectedAnswer == correctAnswer) { //checking to see if selected answer equals the correct anser for the question 
+        _score++; //incrementing score 
         _feedbackText = "Correct! The answer is $correctAnswer.";
       } else {
         _feedbackText = "Incorrect. The correct answer is $correctAnswer.";
@@ -52,10 +65,10 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _nextQuestion() {
     setState(() {
-      _answered = false;
-      _selectedAnswer = "";
-      _feedbackText = "";
-      _currentQuestionIndex++;
+      _answered = false; //setting bool for if question has been answered to false
+      _selectedAnswer = ""; //reseting selectedanswer back to empty string 
+      _feedbackText = ""; // reset feedback text to empty string 
+      _currentQuestionIndex++; //incrementing the index for the currentqestion 
     });
   }
 
@@ -63,7 +76,7 @@ class _QuizScreenState extends State<QuizScreen> {
     return ElevatedButton(
       onPressed: _answered ? null : () => _submitAnswer(option),
       child: Text(option),
-      style: ElevatedButton.styleFrom(primary: Colors.blue),
+      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
     );
   }
 
@@ -75,7 +88,7 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
 
-    if (_currentQuestionIndex >= _questions.length) {
+    if (_currentQuestionIndex >= _questions.length) { //check to see if you have reached past the final question 
       return Scaffold(
         body: Center(
           child: Text('Quiz Finished! Your Score: $_score/${_questions.length}'),
@@ -83,7 +96,7 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
 
-    final question = _questions[_currentQuestionIndex];
+    final question = _questions[_currentQuestionIndex];//the current question object
 
     return Scaffold(
       appBar: AppBar(title: Text('Quiz App')),
@@ -98,15 +111,15 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              question.question,
+              question.question, //current question 
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 16),
-            ...question.options.map((option) => _buildOptionButton(option)),
+            ...question.options.map((option) => _buildOptionButton(option)), //map each question and calling buildoption method to display widget of options
             SizedBox(height: 20),
             if (_answered)
               Text(
-                _feedbackText,
+                _feedbackText, 
                 style: TextStyle(
                   fontSize: 16,
                   color: _selectedAnswer == question.correctAnswer
